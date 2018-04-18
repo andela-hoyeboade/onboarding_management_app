@@ -69,9 +69,19 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'onboarding_management.wsgi.application'
 
+# Use nose to run all tests
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+# Tell nose to measure coverage on the api app
+NOSE_ARGS = [
+    '--with-coverage',
+    '--cover-package=api',
+    '--cover-erase',
+    '--cover-html',
+]
 
 # Database
-# https://docs.djangoproject.com/en/1.11/ref/settings/#databases
+# https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
 DATABASES = {
     'default': {

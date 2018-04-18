@@ -1,2 +1,8 @@
+*.sqlite3
+*.pyc
+cover/
+.coverage
+.coveragerc
 .idea/
 .venv/
+.env

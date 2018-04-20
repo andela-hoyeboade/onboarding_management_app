@@ -6,6 +6,6 @@ User = get_user_model()
 
 class UserTest(TestCase):
 
-    def test_string_reprensentation_of_user_model(self):
+    def test_string_representation_of_user_model(self):
         user = User.objects.create(username='hassan')
         self.assertEqual(str(user), '<User username=hassan>')

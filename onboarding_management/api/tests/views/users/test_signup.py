@@ -5,16 +5,18 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from django.contrib.auth import get_user_model
-from django.urls import reverse
+from django.core.urlresolvers import reverse
 
 User = get_user_model()
 signup_url = reverse('api_signup')
 
 
-class UserSignUpAPITest(APITestCase):
+class UserSignUpAPIIntegrationTest(APITestCase):
 
     def setUp(self):
-        self.signup_data = {'username': 'hassan', 'password': 'hassan', 'email': 'hassan@gmail.com'}
+        self.signup_data = {'username': 'test_user',
+                            'password': 'password',
+                            'email': 'test_user@gmail.com'}
 
     def test_user_can_signup(self):
         response = self.client.post(signup_url, self.signup_data)

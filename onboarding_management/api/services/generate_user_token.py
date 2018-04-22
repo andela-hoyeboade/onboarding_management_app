@@ -1,12 +1,4 @@
-from enum import IntEnum
-
 from rest_framework_jwt.settings import api_settings
-
-
-class UserRole(IntEnum):
-    NORMAL_USER = 0
-    DEPARTMENT_ADMIN = 1
-    SUPER_USER = 2
 
 
 def generate_user_token(user):

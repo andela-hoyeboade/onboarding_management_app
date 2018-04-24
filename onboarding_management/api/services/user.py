@@ -1,22 +1,26 @@
-from rest_framework_jwt.settings import api_settings
+from django.contrib.auth import get_user_model
+from django.db.models import Q
 
-from ..models import User
+
+User = get_user_model()
 
 
-class UserService(object):
+class UserService:
 
     @staticmethod
     def create_user(user_data):
-        username = user_data['username']
-        password = user_data['password']
-        email = user_data['email']
+        """
+        :param user_data: a dictionary of user data
+        :return: created user object
+        """
 
-        return User.objects.create_user(username=username, password=password, email=email)
+        return User.objects.create_user(**user_data)
 
     @staticmethod
-    def generate_user_token(user):
-        jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
-        jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
-
-        payload = jwt_payload_handler(user)
-        return jwt_encode_handler(payload)
+    def get_user(username_or_email):
+        """
+        :param username_or_email: the username or email for a user
+        :return: user object
+        :raise: User.DoesNotExist
+        """
+        return User.objects.get(Q(username=username_or_email) | Q(email=username_or_email))

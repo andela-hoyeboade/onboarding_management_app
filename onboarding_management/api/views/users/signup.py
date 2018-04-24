@@ -4,9 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from ...serializers.users.signup import UserSignUpSerializer
-from ...services.user import UserService
-
-user_service = UserService()
+from ...services import user_service, token_service
 
 
 User = get_user_model()
@@ -22,7 +20,6 @@ class SignUpAPIView(APIView):
         serializer.is_valid(raise_exception=True)
 
         user = user_service.create_user(serializer.validated_data)
-        token = user_service.generate_user_token(user)
+        token = token_service.generate_user_token(user)
 
         return Response({'token': token}, status.HTTP_201_CREATED)
-

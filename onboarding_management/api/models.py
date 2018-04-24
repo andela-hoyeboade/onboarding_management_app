@@ -10,8 +10,7 @@ class User(AbstractUser):
         (int(UserRole.SUPER_USER), 'Super User',),)
     role = models.PositiveSmallIntegerField(choices=ROLE_CHOICES, default=int(UserRole.NORMAL_USER))
 
-    class Meta:
-        unique_together = ('email',)
+    email = models.EmailField(unique=True)
 
     def __str__(self):
         return '<User username={0}>'.format(self.username)

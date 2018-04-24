@@ -1,47 +1,60 @@
-import unittest
 from unittest.mock import patch
+from django.test import TestCase
+
+from parameterized import parameterized
 
 from api.models import User
-from api.services.user import UserService
+from api.services import user_service
 
 
-class UserServiceTest(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        cls.user_service = UserService
+class UserServiceTest(TestCase):
 
     def setUp(self):
         self.user_data = {'username': 'test_user', 'password': 'test_password', 'email': 'test_email@gmail.com'}
 
     @patch('api.services.user.User.objects.create_user')
-    def test_create_user_with_user_data(self, mock_user_create):
+    def test_create_user_with_user_data(self, user_create_mock):
         expected_user = User(**self.user_data)
-        mock_user_create.return_value = expected_user
+        user_create_mock.return_value = expected_user
 
-        created_user = self.user_service.create_user(self.user_data)
+        created_user = user_service.create_user(self.user_data)
 
-        mock_user_create.assert_called_with(username=self.user_data['username'],
+        user_create_mock.assert_called_with(username=self.user_data['username'],
                                             password=self.user_data['password'],
                                             email=self.user_data['email'])
         self.assertEqual(created_user, expected_user)
 
-    @patch('api.services.user.api_settings.JWT_ENCODE_HANDLER')
-    @patch('api.services.user.api_settings.JWT_PAYLOAD_HANDLER')
-    def test_generate_user_token(self, jwt_payload_handler_mock, jwt_encode_handler_mock):
-        user = User(**self.user_data)
-        user_jwt_payload = {}
-        expected_token = 'test_token'
+    @parameterized.expand([
+        'username',
+        'email'
+    ])
+    @patch('api.services.user.User.objects.get')
+    def test_get_user_by_username_or_email(self, user_field, user_get_mock):
+        expected_user = User(**self.user_data)
+        user_get_mock.return_value = expected_user
 
-        jwt_payload_handler_mock.return_value = user_jwt_payload
-        jwt_encode_handler_mock.return_value = expected_token
-
-        generated_token = self.user_service.generate_user_token(user)
-
-        jwt_payload_handler_mock.assert_called_with(user)
-        jwt_encode_handler_mock.assert_called_with(user_jwt_payload)
-
-        self.assertEqual(generated_token, expected_token)
+        user = user_service.get_user(self.user_data[user_field])
+        self.assertEqual(user, expected_user)
 
 
+class UserServiceIntegrationTest(TestCase):
 
+    def setUp(self):
+        self.user_data = {'username': 'test_user', 'password': 'test_password', 'email': 'test_email@gmail.com'}
+
+    def test_create_user(self):
+        User.objects.create_user(**self.user_data)
+
+        self.assertTrue(User.objects.filter(username=self.user_data['username']).exists())
+        self.assertTrue(User.objects.filter(email=self.user_data['email']).exists())
+
+    def test_get_user_with_existing_username_or_email(self):
+        expected_user = User.objects.create_user(**self.user_data)
+
+        self.assertEqual(user_service.get_user(self.user_data['username']), expected_user)
+        self.assertEqual(user_service.get_user(self.user_data['email']), expected_user)
+
+    def test_get_user_with_non_existing_username_or_email_raises_object_does_not_exist(self):
+
+        with self.assertRaises(User.DoesNotExist):
+            user_service.get_user('invalid')

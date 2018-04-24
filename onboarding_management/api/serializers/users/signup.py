@@ -4,6 +4,9 @@ from ...models import User
 
 
 class UserSignUpSerializer(serializers.ModelSerializer):
+    """
+    Serializer for user signup
+    """
 
     class Meta:
         model = User
